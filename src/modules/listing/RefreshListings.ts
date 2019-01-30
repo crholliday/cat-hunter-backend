@@ -1,11 +1,11 @@
-import config from '../../config'
 import axios from 'axios'
-import { Resolver, UseMiddleware, Mutation } from 'type-graphql'
-
-import { isAuth } from '../middleware/isAuth'
-import { logger } from '../middleware/logger'
+import { Mutation, Resolver, UseMiddleware } from 'type-graphql'
+import config from '../../config'
 import { Listing } from '../../entity/Listing'
 import { MyListing } from '../../types/MyListing'
+import { pubsub } from '../../types/MyPubSub'
+import { isAuth } from '../middleware/isAuth'
+import { logger } from '../middleware/logger'
 
 @Resolver()
 export class RefreshDatabaseResolver {
@@ -38,8 +38,8 @@ export class RefreshDatabaseResolver {
 
       if (page === last) {
         if (sourceListings.length > 0) {
-          console.log(`Found some new listings...`)
-          Listing.save(sourceListings)
+          let items = await Listing.save(sourceListings)
+          items.forEach(async i => await pubsub.publish('newListing', i))
           return `${sourceListings.length} records added.`
         } else {
           return 'No new records found.'

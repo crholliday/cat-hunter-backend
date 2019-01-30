@@ -1,21 +1,24 @@
-import { Resolver, Query, Ctx, UseMiddleware } from 'type-graphql'
+import { Arg, Ctx, Query, Resolver, UseMiddleware } from 'type-graphql'
 import { InsertResult } from 'typeorm'
-
 import { Log } from '../../entity/Log'
+import { LogType } from '../../types/LogType'
 import { MyContext } from '../../types/MyContext'
 import { isAuth } from '../middleware/isAuth'
-import { LogType } from '../../types/LogType'
 
 @Resolver()
 export class LogResolver {
   @UseMiddleware(isAuth)
   @Query(() => [Log], { nullable: true })
-  async allLogs(@Ctx() ctx: MyContext): Promise<Log[] | undefined> {
+  async allLogs(
+    @Arg('type', { nullable: true }) type: LogType,
+    @Ctx() ctx: MyContext
+  ): Promise<Log[] | undefined> {
     if (!ctx.req.session!.userId) {
       return undefined
     }
 
     return await Log.find({
+      where: { type: type },
       order: {
         createdDate: 'DESC'
       }

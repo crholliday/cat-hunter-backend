@@ -19,7 +19,7 @@ export class MyListing {
   locationCity: string
   locationCountryCode: string
   locationCountry: string
-  createdDate: string
+  createdDate: Date
   modifiedDate: Date
   addedDate: Date
   url: string
@@ -56,8 +56,13 @@ export class MyListing {
       (this.heads = record.boat.accommodation.heads),
       (this.locationCity = record.location.city),
       (this.locationCountry = ''),
-      (this.createdDate = record.date.created),
-      (this.modifiedDate = record.date.modified),
+      (this.locationCountryCode = record.location.countryCode),
+      (this.createdDate = record.date.created
+        ? new Date(record.date.created)
+        : new Date()),
+      (this.modifiedDate = record.date.modified
+        ? new Date(record.date.modified)
+        : new Date()),
       (this.addedDate = new Date()),
       (this.url = record.mappedURL),
       (this.description = record.descriptionNoHTML)
@@ -68,9 +73,9 @@ export class MyListing {
     return this
   }
 
-  protected async getCountryName(code: string): Promise<string> {
-    const country = await Country.findOne({ abbreviation: code })
-    return (country && country.name) || ''
+  protected async getCountryName(abbreviation: string): Promise<string> {
+    const country = await Country.findOne({ where: { abbreviation } })
+    return country && country.name ? country.name : ''
   }
 
   protected isOwnersVersion(cabins: number, description: string) {
