@@ -1,12 +1,12 @@
+import { Field, ID, ObjectType } from 'type-graphql'
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
   BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
   ManyToMany,
-  JoinTable
+  PrimaryGeneratedColumn
 } from 'typeorm'
-import { ObjectType, Field, ID } from 'type-graphql'
 import { Listing } from './Listing'
 
 @ObjectType()
@@ -16,13 +16,9 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Field()
-  @Column()
-  firstName: string
-
-  @Field()
-  @Column()
-  lastName: string
+  @Field({ defaultValue: 'No name', nullable: true })
+  @Column({ default: 'No name', nullable: true })
+  fullName: string
 
   @Field()
   @Column('text', { unique: true })

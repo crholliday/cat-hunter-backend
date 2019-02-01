@@ -1,10 +1,17 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql'
 import bcrypt from 'bcryptjs'
-
+import { MyContext } from 'src/types/MyContext'
+import {
+  Arg,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware
+} from 'type-graphql'
 import { User } from '../../entity/User'
-import { RegisterInput } from './register/RegisterInput'
 import { isAuth } from '../middleware/isAuth'
 import { logger } from '../middleware/logger'
+import { RegisterInput } from './register/RegisterInput'
 
 @Resolver()
 export class RegisterResolver {
@@ -15,21 +22,20 @@ export class RegisterResolver {
   }
 
   @Mutation(() => User)
-  async register(@Arg('data')
-  {
-    email,
-    firstName,
-    lastName,
-    password
-  }: RegisterInput): Promise<User> {
+  async register(
+    @Arg('data')
+    { email, fullName, password }: RegisterInput,
+    @Ctx() ctx: MyContext
+  ): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     const user = await User.create({
-      firstName,
-      lastName,
+      fullName,
       email,
       password: hashedPassword
     }).save()
+
+    ctx.req.session!.userId = user.id
 
     return user
   }
