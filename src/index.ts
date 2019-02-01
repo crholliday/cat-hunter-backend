@@ -6,6 +6,7 @@ import http from 'http'
 import 'reflect-metadata'
 import { buildSchema, formatArgumentValidationError } from 'type-graphql'
 import { createConnection } from 'typeorm'
+import config from './config'
 import { ListingResolver } from './modules/listing/Listing'
 import { RefreshDatabaseResolver } from './modules/listing/RefreshListings'
 import { LogResolver } from './modules/log/Log'
@@ -14,6 +15,7 @@ import { LoginResolver } from './modules/user/Login'
 import { MeResolver } from './modules/user/Me'
 import { RegisterResolver } from './modules/user/Register'
 import { redis } from './redis'
+import { SeedCountries } from './seed'
 import { RefreshListingsTask } from './task'
 import { pubsub } from './types/MyPubSub'
 
@@ -52,19 +54,19 @@ const main = async () => {
         client: redis as any
       }),
       name: 'cats-are-best',
-      secret: 'aslkdfjoiq12312',
+      secret: config.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 1000 * 60 * 60 * 24 * 7 * 365 // 7 years
+        maxAge: config.COOKIE_MAX_AGE
       }
     })
   )
 
   // https://github.com/apollographql/apollo-client/issues/4037
-  const corsOptions = { credentials: true, origin: 'http://localhost:8080' }
+  const corsOptions = { credentials: true, origin: config.CLIENT_URL }
   apolloServer.applyMiddleware({ app, cors: corsOptions })
 
   // get sockets going
@@ -73,6 +75,7 @@ const main = async () => {
 
   httpServer.listen(4000, () => {
     RefreshListingsTask
+    SeedCountries()
     console.log(
       `🚀 Server ready at http://localhost:4000${apolloServer.graphqlPath}`
     )
