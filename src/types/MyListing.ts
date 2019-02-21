@@ -6,28 +6,35 @@ export class MyListing {
   make: string
   model: string
   year: number
-  name: string
+  name: string = ''
   price: number
-  ownersVersion: boolean
-  length: number
-  beam: number
-  draft: number
-  displacement: number
-  cabins: number
-  doubleBerths: number
-  heads: number
-  locationCity: string
-  locationCountryCode: string
-  locationCountry: string
-  createdDate: Date
-  modifiedDate: Date
-  addedDate: Date
-  url: string
-  description: string
+  ownersVersion: boolean = false
+  length: number = 0
+  beam: number = 0
+  draft: number = 0
+  displacement: number = 0
+  cabins: number = 0
+  doubleBerths: number = 0
+  heads: number = 0
+  locationCity: string = ''
+  locationCountryCode: string = ''
+  locationCountry: string = ''
+  createdDate: Date = new Date()
+  modifiedDate: Date = new Date()
+  addedDate: Date = new Date()
+  url: string = ''
+  description: string = ''
 
   constructor(source: string, record: any) {
-    // console.log(`In the constructor for MyListing: ${record}`)
-    ;(this.sourceSystem = source),
+    if (source == 'yw') {
+      this.fromYW(record)
+    } else if (source == 'cc') {
+      this.fromCC(record)
+    }
+  }
+
+  protected fromYW(record: any) {
+    ;(this.sourceSystem = 'yw'),
       (this.sourceSystemId = record.id),
       (this.make = record.boat.make),
       (this.model = record.boat.model),
@@ -44,7 +51,7 @@ export class MyListing {
         record.boat.specifications.dimensions.lengths.overall.ft),
       (this.beam =
         record.boat.specifications.dimensions.beam &&
-        record.boat.specifications.dimensions.beam.ft),
+        record.boat.specifications.dimensions.beam.f),
       (this.draft =
         record.boat.specifications.dimensions.maxDraft &&
         record.boat.specifications.dimensions.maxDraft.ft),
@@ -68,8 +75,26 @@ export class MyListing {
       (this.description = record.descriptionNoHTML)
   }
 
+  protected fromCC(record: any) {
+    ;(this.sourceSystem = 'cc'),
+      (this.sourceSystemId = record.id),
+      (this.make = record.make),
+      (this.model = record.model),
+      (this.year = record.year),
+      (this.name = record.name),
+      (this.price = record.price),
+      (this.ownersVersion = this.isOwnersVersion(record.cabins, '')),
+      (this.cabins = record.cabins),
+      (this.heads = record.heads),
+      (this.locationCity = record.location.split(',')[0]),
+      (this.locationCountry = record.location.split(',')[1]),
+      (this.url = record.link)
+  }
+
   async getFormattedRecord(): Promise<MyListing> {
-    this.locationCountry = await this.getCountryName(this.locationCountryCode)
+    if (this.sourceSystem == 'yw') {
+      this.locationCountry = await this.getCountryName(this.locationCountryCode)
+    }
     return this
   }
 

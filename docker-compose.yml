@@ -1,0 +1,30 @@
+# to mount an external volume use:
+#
+# services:
+#     postgres:
+#         restart: always
+#         volumes:
+#             - postgres_database:/var/lib/postgresql/data:Z
+
+# volumes:
+#     postgres_database:
+#         external: true
+#
+# https://github.com/docker/for-win/issues/445#issuecomment-405185621
+
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: 'cathunter'
+      POSTGRES_PASSWORD: 'cathunter'
+      POSTGRES_DB: 'cat_hunter'
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
