@@ -76,7 +76,7 @@ export class RefreshDatabaseResolver {
         condition: 'used',
         year: '2000-',
         length: '40-50',
-        price: '200000-400000',
+        price: '200000-600000',
         created: '-120',
         boatType: 'sail',
         class: 'sail-catamaran',
@@ -115,7 +115,7 @@ export class RefreshDatabaseResolver {
 
   getCCListings = async (ids: Listing[]) => {
     const url =
-      'https://www.catamarans.com/catamarans-for-sale/catamarans-all-listing-search-boats.aspx?strLengthFrom=40&strLengthTo=48&strPriceFrom=200000&strPriceTo=400000&strManufact=&strName=&strLocation=&strPowerOrSail=Sail&strConditionAll=&strCurrSymbol=USD&SourceSearch=OTHERS&SourceCategory='
+      'https://www.catamarans.com/catamarans-for-sale/catamarans-all-listing-search-boats.aspx?strLengthFrom=40&strLengthTo=48&strPriceFrom=200000&strPriceTo=600000&strManufact=&strName=&strLocation=&strPowerOrSail=Sail&strConditionAll=&strCurrSymbol=USD&SourceSearch=OTHERS&SourceCategory='
 
     const res = await axios.get(url)
     const records = $('article article', '.row-same-height', res.data)
