@@ -122,6 +122,8 @@ export class RefreshDatabaseResolver {
     const p_results = records.get().map(record => this.recordBuilder(record))
     const results = await Promise.all(p_results)
 
+    console.log(results)
+
     const newRecords: any[] = []
 
     for (let element of results) {
@@ -162,7 +164,7 @@ export class RefreshDatabaseResolver {
       .slice(0, 4)
 
     const id = $('a', record)
-      .attr('href')
+      .attr('href')!
       .split('=')[1]
 
     const link =
@@ -194,7 +196,7 @@ export class RefreshDatabaseResolver {
 
     return {
       name: name,
-      price: price,
+      price: !isNaN(Number(price)) ? price : 0,
       year: year,
       link: link,
       id: id,

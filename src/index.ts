@@ -4,9 +4,12 @@ import Express from 'express'
 import session from 'express-session'
 import http from 'http'
 import 'reflect-metadata'
-import { buildSchema, formatArgumentValidationError } from 'type-graphql'
+import { buildSchema } from 'type-graphql'
 import { createConnection } from 'typeorm'
 import config from './config'
+import { CategoryResolver } from './modules/gear/Category'
+import { GearResolver } from './modules/gear/Gear'
+import { LinkResolver } from './modules/link/Link'
 import { ListingResolver } from './modules/listing/Listing'
 import { RefreshDatabaseResolver } from './modules/listing/RefreshListings'
 import { LogResolver } from './modules/log/Log'
@@ -26,6 +29,9 @@ const main = async () => {
     resolvers: [
       MeResolver,
       RegisterResolver,
+      CategoryResolver,
+      GearResolver,
+      LinkResolver,
       LoginResolver,
       ListingResolver,
       RefreshDatabaseResolver,
@@ -40,7 +46,6 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    formatError: formatArgumentValidationError,
     context: ({ req }: any) => ({ req })
   })
 
@@ -80,9 +85,7 @@ const main = async () => {
       `🚀 Server ready at http://localhost:4000${apolloServer.graphqlPath}`
     )
     console.log(
-      `🚀 Subscriptions ready at ws://localhost:4000${
-        apolloServer.subscriptionsPath
-      }`
+      `🚀 Subscriptions ready at ws://localhost:4000${apolloServer.subscriptionsPath}`
     )
   })
 }

@@ -31,18 +31,21 @@ export class ListingResolver {
     })
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => User)
   async addFavorite(
     @Arg('listingId') listingId: string,
     @Ctx() ctx: MyContext
-  ): Promise<boolean> {
-    const user = await User.findOne({ id: ctx.req.session!.userId })
+  ): Promise<User | undefined> {
+    let user = await User.findOne({
+      where: { id: ctx.req.session!.userId },
+      relations: ['favorites']
+    })
     const listing = await Listing.findOne({
       sourceSystemId: listingId
     })
 
     if (!user || !listing) {
-      return false
+      return undefined
     }
 
     await getConnection()
@@ -51,21 +54,29 @@ export class ListingResolver {
       .of(user)
       .add(listing)
 
-    return true
+    let updated = await User.findOne({
+      where: { id: ctx.req.session!.userId },
+      relations: ['favorites']
+    })
+
+    return updated
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => User)
   async removeFavorite(
     @Arg('listingId') listingId: string,
     @Ctx() ctx: MyContext
-  ): Promise<boolean> {
-    const user = await User.findOne(ctx.req.session!.userId)
+  ): Promise<User | undefined> {
+    let user = await User.findOne({
+      where: { id: ctx.req.session!.userId },
+      relations: ['favorites']
+    })
     const listing = await Listing.findOne({
       sourceSystemId: listingId
     })
 
     if (!user || !listing) {
-      return false
+      return undefined
     }
 
     await getConnection()
@@ -74,7 +85,12 @@ export class ListingResolver {
       .of(user)
       .remove(listing)
 
-    return true
+    let updated = await User.findOne({
+      where: { id: ctx.req.session!.userId },
+      relations: ['favorites']
+    })
+
+    return updated
   }
 
   @Subscription(() => Listing, { topics: 'newListing' })
